@@ -1,16 +1,17 @@
 package oldradio
 
 import (
+	"os"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 )
 
-var processer *Processor
+var processor *Processor
 
 func TestNewProcessor(t *testing.T) {
-	processer = NewProcessor()
-	assert.Equal(t, 0.3, processer.EchoLevelMKV())
+	processor = NewProcessor()
+	assert.Equal(t, 0.3, processor.EchoLevelMKV())
 }
 
 func TestLevelWithFading(t *testing.T) {
@@ -19,282 +20,317 @@ func TestLevelWithFading(t *testing.T) {
 	assert.Equal(t, expect, res)
 }
 
+func TestProcessor_ProcessPipes(t *testing.T) {
+
+	mainStream, err := os.Open("./test_audio_files/ringtone.mp3") // For read access.
+	defer mainStream.Close()
+	assert.NoError(t, err)
+
+	bgStream, err := os.Open("./test_audio_files/ringtone.mp3") // For read access.
+	defer bgStream.Close()
+	assert.NoError(t, err)
+
+	errChan := make(chan error)
+	outChan := make(chan byte)
+
+	go processor.ProcessPipes(mainStream, bgStream, 1028, outChan, errChan)
+
+	var cycleBreak bool
+	for {
+		if cycleBreak {
+			break
+		}
+		select {
+		case err := <-errChan:
+			assert.Error(t, err, "main pipe ended")
+			cycleBreak = true
+			break
+		case out := <-outChan:
+			assert.NotNil(t, out)
+			break
+		}
+	}
+
+	//expect := 1241.9879802341036
+	//assert.Equal(t, expect, res)
+}
+
 func TestSignalLevelMKV(t *testing.T) {
 	expect := 10.1
-	processer.SetSignalLevelMKV(expect)
-	res := processer.SignalLevelMKV()
+	processor.SetSignalLevelMKV(expect)
+	res := processor.SignalLevelMKV()
 	assert.Equal(t, expect, res)
 }
 
 func TestSignalFadingFastPeriodRate(t *testing.T) {
 	expect := 1000.1
-	processer.SetSignalFadingFastPeriodRate(expect)
-	res := processer.SignalFadingFastPeriodRate()
+	processor.SetSignalFadingFastPeriodRate(expect)
+	res := processor.SignalFadingFastPeriodRate()
 	assert.Equal(t, expect, res)
 }
 
 func TestSignalFadingMediumPeriodRate(t *testing.T) {
 	expect := 15000.1
-	processer.SetSignalFadingMediumPeriodRate(expect)
-	res := processer.SignalFadingMediumPeriodRate()
+	processor.SetSignalFadingMediumPeriodRate(expect)
+	res := processor.SignalFadingMediumPeriodRate()
 	assert.Equal(t, expect, res)
 }
 
 func TestSignalFadingLongPeriodRate(t *testing.T) {
 	expect := 40000.1
-	processer.SetSignalFadingLongPeriodRate(expect)
-	res := processer.SignalFadingLongPeriodRate()
+	processor.SetSignalFadingLongPeriodRate(expect)
+	res := processor.SignalFadingLongPeriodRate()
 	assert.Equal(t, expect, res)
 }
 
 func TestSignalFadingExtralongPeriodRate(t *testing.T) {
 	expect := 200000.1
-	processer.SetSignalFadingExtralongPeriodRate(expect)
-	res := processer.SignalFadingExtralongPeriodRate()
+	processor.SetSignalFadingExtralongPeriodRate(expect)
+	res := processor.SignalFadingExtralongPeriodRate()
 	assert.Equal(t, expect, res)
 }
 
 func TestSignalFadingFastPeriodIncreaser(t *testing.T) {
 	expect := 300.1
-	processer.SetSignalFadingFastPeriodIncreaser(expect)
-	res := processer.SignalFadingFastPeriodIncreaser()
+	processor.SetSignalFadingFastPeriodIncreaser(expect)
+	res := processor.SignalFadingFastPeriodIncreaser()
 	assert.Equal(t, expect, res)
 }
 
 func TestSignalFadingMediumPeriodIncreaser(t *testing.T) {
 	expect := 17500.1
-	processer.SetSignalFadingMediumPeriodIncreaser(expect)
-	res := processer.SignalFadingMediumPeriodIncreaser()
+	processor.SetSignalFadingMediumPeriodIncreaser(expect)
+	res := processor.SignalFadingMediumPeriodIncreaser()
 	assert.Equal(t, expect, res)
 }
 
 func TestSignalFadingLongPeriodIncreaser(t *testing.T) {
 	expect := 60000.1
-	processer.SetSignalFadingLongPeriodIncreaser(expect)
-	res := processer.SignalFadingLongPeriodIncreaser()
+	processor.SetSignalFadingLongPeriodIncreaser(expect)
+	res := processor.SignalFadingLongPeriodIncreaser()
 	assert.Equal(t, expect, res)
 }
 
 func TestSignalFadingExtralongPerioIncreaser(t *testing.T) {
 	expect := 150000.1
-	processer.SetSignalFadingExtralongPerioIncreaser(expect)
-	res := processer.SignalFadingExtralongPerioIncreaser()
+	processor.SetSignalFadingExtralongPerioIncreaser(expect)
+	res := processor.SignalFadingExtralongPerioIncreaser()
 	assert.Equal(t, expect, res)
 }
 
 func TestEchoLevelMKV(t *testing.T) {
 	expect := 0.31
-	processer.SetEchoLevelMKV(expect)
-	res := processer.EchoLevelMKV()
+	processor.SetEchoLevelMKV(expect)
+	res := processor.EchoLevelMKV()
 	assert.Equal(t, expect, res)
 }
 
 func TestEchoFadingFastPeriodRate(t *testing.T) {
 	expect := 2000.1
-	processer.SetEchoFadingFastPeriodRate(expect)
-	res := processer.EchoFadingFastPeriodRate()
+	processor.SetEchoFadingFastPeriodRate(expect)
+	res := processor.EchoFadingFastPeriodRate()
 	assert.Equal(t, expect, res)
 }
 
 func TestEchoFadingMediumPeriodRate(t *testing.T) {
 	expect := 7000.1
-	processer.SetEchoFadingMediumPeriodRate(expect)
-	res := processer.EchoFadingMediumPeriodRate()
+	processor.SetEchoFadingMediumPeriodRate(expect)
+	res := processor.EchoFadingMediumPeriodRate()
 	assert.Equal(t, expect, res)
 }
 
 func TestEchoFadingLongPeriodRate(t *testing.T) {
 	expect := 50000.1
-	processer.SetEchoFadingLongPeriodRate(expect)
-	res := processer.EchoFadingLongPeriodRate()
+	processor.SetEchoFadingLongPeriodRate(expect)
+	res := processor.EchoFadingLongPeriodRate()
 	assert.Equal(t, expect, res)
 }
 
 func TestEchoFadingExtralongPeriodRate(t *testing.T) {
 	expect := 200000.1
-	processer.SetEchoFadingExtralongPeriodRate(expect)
-	res := processer.EchoFadingExtralongPeriodRate()
+	processor.SetEchoFadingExtralongPeriodRate(expect)
+	res := processor.EchoFadingExtralongPeriodRate()
 	assert.Equal(t, expect, res)
 }
 
 func TestEchoFadingFastPeriodIncreaser(t *testing.T) {
 	expect := 1500.1
-	processer.SetEchoFadingFastPeriodIncreaser(expect)
-	res := processer.EchoFadingFastPeriodIncreaser()
+	processor.SetEchoFadingFastPeriodIncreaser(expect)
+	res := processor.EchoFadingFastPeriodIncreaser()
 	assert.Equal(t, expect, res)
 }
 
 func TestEchoFadingMediumPeriodIncreaser(t *testing.T) {
 	expect := 4000.1
-	processer.SetEchoFadingMediumPeriodIncreaser(expect)
-	res := processer.EchoFadingMediumPeriodIncreaser()
+	processor.SetEchoFadingMediumPeriodIncreaser(expect)
+	res := processor.EchoFadingMediumPeriodIncreaser()
 	assert.Equal(t, expect, res)
 }
 
 func TestEchoFadingLongPeriodIncreaser(t *testing.T) {
 	expect := 25000.1
-	processer.SetEchoFadingLongPeriodIncreaser(expect)
-	res := processer.EchoFadingLongPeriodIncreaser()
+	processor.SetEchoFadingLongPeriodIncreaser(expect)
+	res := processor.EchoFadingLongPeriodIncreaser()
 	assert.Equal(t, expect, res)
 }
 
 func TestEchoFadingExtralongPeriodIncreaser(t *testing.T) {
 	expect := 150000.1
-	processer.SetEchoFadingExtralongPeriodIncreaser(expect)
-	res := processer.EchoFadingExtralongPeriodIncreaser()
+	processor.SetEchoFadingExtralongPeriodIncreaser(expect)
+	res := processor.EchoFadingExtralongPeriodIncreaser()
 	assert.Equal(t, expect, res)
 }
 
 func TestBgSignalLevelMKV(t *testing.T) {
 	expect := 0.21
-	processer.SetBgSignalLevelMKV(expect)
-	res := processer.BgSignalLevelMKV()
+	processor.SetBgSignalLevelMKV(expect)
+	res := processor.BgSignalLevelMKV()
 	assert.Equal(t, expect, res)
 }
 
 func TestBgSignalFadingFastPeriodRate(t *testing.T) {
 	expect := 2000.1
-	processer.SetBgSignalFadingFastPeriodRate(expect)
-	res := processer.BgSignalFadingFastPeriodRate()
+	processor.SetBgSignalFadingFastPeriodRate(expect)
+	res := processor.BgSignalFadingFastPeriodRate()
 	assert.Equal(t, expect, res)
 }
 
 func TestBgSignalFadingMediumPeriodRate(t *testing.T) {
 	expect := 7000.1
-	processer.SetBgSignalFadingMediumPeriodRate(expect)
-	res := processer.BgSignalFadingMediumPeriodRate()
+	processor.SetBgSignalFadingMediumPeriodRate(expect)
+	res := processor.BgSignalFadingMediumPeriodRate()
 	assert.Equal(t, expect, res)
 }
 
 func TestBgSignalFadingLongPeriodRate(t *testing.T) {
 	expect := 50000.1
-	processer.SetBgSignalFadingLongPeriodRate(expect)
-	res := processer.BgSignalFadingLongPeriodRate()
+	processor.SetBgSignalFadingLongPeriodRate(expect)
+	res := processor.BgSignalFadingLongPeriodRate()
 	assert.Equal(t, expect, res)
 }
 
 func TestBgSignalFadingExtralongPeriodRate(t *testing.T) {
 	expect := 200000.1
-	processer.SetBgSignalFadingExtralongPeriodRate(expect)
-	res := processer.BgSignalFadingExtralongPeriodRate()
+	processor.SetBgSignalFadingExtralongPeriodRate(expect)
+	res := processor.BgSignalFadingExtralongPeriodRate()
 	assert.Equal(t, expect, res)
 }
 
 func TestBgSignalFadingFastPeriodIncreaser(t *testing.T) {
 	expect := 1500.1
-	processer.SetBgSignalFadingFastPeriodIncreaser(expect)
-	res := processer.BgSignalFadingFastPeriodIncreaser()
+	processor.SetBgSignalFadingFastPeriodIncreaser(expect)
+	res := processor.BgSignalFadingFastPeriodIncreaser()
 	assert.Equal(t, expect, res)
 }
 
 func TestBgSignalFadingMediumPeriodIncreaser(t *testing.T) {
 	expect := 4000.1
-	processer.SetBgSignalFadingMediumPeriodIncreaser(expect)
-	res := processer.BgSignalFadingMediumPeriodIncreaser()
+	processor.SetBgSignalFadingMediumPeriodIncreaser(expect)
+	res := processor.BgSignalFadingMediumPeriodIncreaser()
 	assert.Equal(t, expect, res)
 }
 
 func TestBgSignalFadingLongPeriodIncreaser(t *testing.T) {
 	expect := 25000.1
-	processer.SetBgSignalFadingLongPeriodIncreaser(expect)
-	res := processer.BgSignalFadingLongPeriodIncreaser()
+	processor.SetBgSignalFadingLongPeriodIncreaser(expect)
+	res := processor.BgSignalFadingLongPeriodIncreaser()
 	assert.Equal(t, expect, res)
 }
 
 func TestBgSignalFadingExtralongPeriodIncreaser(t *testing.T) {
 	expect := 150000.1
-	processer.SetBgSignalFadingExtralongPeriodIncreaser(expect)
-	res := processer.BgSignalFadingExtralongPeriodIncreaser()
+	processor.SetBgSignalFadingExtralongPeriodIncreaser(expect)
+	res := processor.BgSignalFadingExtralongPeriodIncreaser()
 	assert.Equal(t, expect, res)
 }
 
 func TestInterferenceNoiseLevelMKV(t *testing.T) {
 	expect := 0.021
-	processer.SetInterferenceNoiseLevelMKV(expect)
-	res := processer.InterferenceNoiseLevelMKV()
+	processor.SetInterferenceNoiseLevelMKV(expect)
+	res := processor.InterferenceNoiseLevelMKV()
 	assert.Equal(t, expect, res)
 }
 
 func TestInterferenceNoiseFadingFastPeriodRate(t *testing.T) {
 	expect := 2000.1
-	processer.SetInterferenceNoiseFadingFastPeriodRate(expect)
-	res := processer.InterferenceNoiseFadingFastPeriodRate()
+	processor.SetInterferenceNoiseFadingFastPeriodRate(expect)
+	res := processor.InterferenceNoiseFadingFastPeriodRate()
 	assert.Equal(t, expect, res)
 }
 
 func TestInterferenceNoiseFadingMediumPeriodRate(t *testing.T) {
 	expect := 7000.1
-	processer.SetInterferenceNoiseFadingMediumPeriodRate(expect)
-	res := processer.InterferenceNoiseFadingMediumPeriodRate()
+	processor.SetInterferenceNoiseFadingMediumPeriodRate(expect)
+	res := processor.InterferenceNoiseFadingMediumPeriodRate()
 	assert.Equal(t, expect, res)
 }
 
 func TestInterferenceNoiseFadingLongPeriodRate(t *testing.T) {
 	expect := 50000.1
-	processer.SetInterferenceNoiseFadingLongPeriodRate(expect)
-	res := processer.InterferenceNoiseFadingLongPeriodRate()
+	processor.SetInterferenceNoiseFadingLongPeriodRate(expect)
+	res := processor.InterferenceNoiseFadingLongPeriodRate()
 	assert.Equal(t, expect, res)
 }
 
 func TestInterferenceNoiseFadingExtralongPeriodRate(t *testing.T) {
 	expect := 200000.1
-	processer.SetInterferenceNoiseFadingExtralongPeriodRate(expect)
-	res := processer.InterferenceNoiseFadingExtralongPeriodRate()
+	processor.SetInterferenceNoiseFadingExtralongPeriodRate(expect)
+	res := processor.InterferenceNoiseFadingExtralongPeriodRate()
 	assert.Equal(t, expect, res)
 }
 
 func TestInterferenceNoiseFadingFastPeriodIncreaser(t *testing.T) {
 	expect := 1500.1
-	processer.SetInterferenceNoiseFadingFastPeriodIncreaser(expect)
-	res := processer.InterferenceNoiseFadingFastPeriodIncreaser()
+	processor.SetInterferenceNoiseFadingFastPeriodIncreaser(expect)
+	res := processor.InterferenceNoiseFadingFastPeriodIncreaser()
 	assert.Equal(t, expect, res)
 }
 
 func TestInterferenceNoiseFadingMediumPeriodIncreaser(t *testing.T) {
 	expect := 4000.1
-	processer.SetInterferenceNoiseFadingMediumPeriodIncreaser(expect)
-	res := processer.InterferenceNoiseFadingMediumPeriodIncreaser()
+	processor.SetInterferenceNoiseFadingMediumPeriodIncreaser(expect)
+	res := processor.InterferenceNoiseFadingMediumPeriodIncreaser()
 	assert.Equal(t, expect, res)
 }
 
 func TestInterferenceNoiseFadingLongPeriodIncreaser(t *testing.T) {
 	expect := 25000.1
-	processer.SetInterferenceNoiseFadingLongPeriodIncreaser(expect)
-	res := processer.InterferenceNoiseFadingLongPeriodIncreaser()
+	processor.SetInterferenceNoiseFadingLongPeriodIncreaser(expect)
+	res := processor.InterferenceNoiseFadingLongPeriodIncreaser()
 	assert.Equal(t, expect, res)
 }
 
 func TestInterferenceNoiseFadingExtralongPeriodIncreaser(t *testing.T) {
 	expect := 150000.1
-	processer.SetInterferenceNoiseFadingExtralongPeriodIncreaser(expect)
-	res := processer.InterferenceNoiseFadingExtralongPeriodIncreaser()
+	processor.SetInterferenceNoiseFadingExtralongPeriodIncreaser(expect)
+	res := processor.InterferenceNoiseFadingExtralongPeriodIncreaser()
 	assert.Equal(t, expect, res)
 }
 
 func TestInterferenceNoiseFreqFactorRate(t *testing.T) {
 	expect := 1000.1
-	processer.SetInterferenceNoiseFreqFactorRate(expect)
-	res := processer.InterferenceNoiseFreqFactorRate()
+	processor.SetInterferenceNoiseFreqFactorRate(expect)
+	res := processor.InterferenceNoiseFreqFactorRate()
 	assert.Equal(t, expect, res)
 }
 
 func TestInterferenceNoiseFreqFactorIncreaser(t *testing.T) {
 	expect := 1.01
-	processer.SetInterferenceNoiseFreqFactorIncreaser(expect)
-	res := processer.InterferenceNoiseFreqFactorIncreaser()
+	processor.SetInterferenceNoiseFreqFactorIncreaser(expect)
+	res := processor.InterferenceNoiseFreqFactorIncreaser()
 	assert.Equal(t, expect, res)
 }
 
 func TestInterferenceNoiseFreqFactorAdditional(t *testing.T) {
 	expect := 3000.1
-	processer.SetInterferenceNoiseFreqFactorAdditional(expect)
-	res := processer.InterferenceNoiseFreqFactorAdditional()
+	processor.SetInterferenceNoiseFreqFactorAdditional(expect)
+	res := processor.InterferenceNoiseFreqFactorAdditional()
 	assert.Equal(t, expect, res)
 }
 
 func TestNoiseLevelMKV(t *testing.T) {
 	expect := 0.11
-	processer.SetNoiseLevelMKV(expect)
-	res := processer.NoiseLevelMKV()
+	processor.SetNoiseLevelMKV(expect)
+	res := processor.NoiseLevelMKV()
 	assert.Equal(t, expect, res)
 }
