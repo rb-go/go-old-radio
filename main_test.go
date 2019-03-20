@@ -26,6 +26,38 @@ func TestProcessor_ProcessPipes(t *testing.T) {
 	defer mainStream.Close()
 	assert.NoError(t, err)
 
+	bgStream, err := os.Open("./test_audio_files/ringtone_long.mp3") // For read access.
+	defer bgStream.Close()
+	assert.NoError(t, err)
+
+	errChan := make(chan error)
+	outChan := make(chan byte)
+
+	go processor.ProcessPipes(mainStream, bgStream, 1028, outChan, errChan)
+
+	var cycleBreak bool
+	for {
+		if cycleBreak {
+			break
+		}
+		select {
+		case err := <-errChan:
+			assert.Error(t, err, "main pipe ended")
+			cycleBreak = true
+			break
+		case out := <-outChan:
+			assert.NotNil(t, out)
+			break
+		}
+	}
+}
+
+func TestProcessor_ProcessPipes2(t *testing.T) {
+
+	mainStream, err := os.Open("./test_audio_files/ringtone_long.mp3") // For read access.
+	defer mainStream.Close()
+	assert.NoError(t, err)
+
 	bgStream, err := os.Open("./test_audio_files/ringtone.mp3") // For read access.
 	defer bgStream.Close()
 	assert.NoError(t, err)
@@ -50,9 +82,6 @@ func TestProcessor_ProcessPipes(t *testing.T) {
 			break
 		}
 	}
-
-	//expect := 1241.9879802341036
-	//assert.Equal(t, expect, res)
 }
 
 func TestSignalLevelMKV(t *testing.T) {
