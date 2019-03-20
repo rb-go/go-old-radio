@@ -1,4 +1,4 @@
-package go_old_radio_processor
+package oldradio
 
 import (
 	"testing"

@@ -1,4 +1,4 @@
-package go_old_radio_processor
+package oldradio
 
 import (
 	"bufio"
@@ -15,6 +15,7 @@ func levelWithFading(level, t, fastPeriod, mediumPeriod, longPeriod, extralongPe
 	return level + 0.4*level*math.Sin(t/extralongPeriod) + 0.3*level*math.Sin(t/longPeriod) + 0.2*level*math.Sin(t/mediumPeriod) + 0.1*level*math.Sin(t/fastPeriod)
 }
 
+//Processor ...
 type Processor struct {
 	sync.Mutex
 
@@ -66,6 +67,7 @@ type Processor struct {
 	noiseLevelMKV float64
 }
 
+//NewProcessor ...
 func NewProcessor() *Processor {
 	proc := &Processor{
 		signalLevelMKV:                      10.0,
@@ -117,7 +119,8 @@ func NewProcessor() *Processor {
 	return proc
 }
 
-func (proc *Processor) ProcessPipe(mainPipe io.Reader, bgPipe io.Reader, freq int64, outChan chan byte, errChan chan error) {
+//ProcessPipes
+func (proc *Processor) ProcessPipes(mainPipe io.Reader, bgPipe io.Reader, freq int64, outChan chan byte, errChan chan error) {
 
 	// Randomize from frequency value
 	rand.Seed(freq)
