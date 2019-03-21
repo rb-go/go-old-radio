@@ -1,4 +1,4 @@
-package oldradio
+package goorp
 
 import "errors"
 
