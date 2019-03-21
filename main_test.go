@@ -42,7 +42,7 @@ func TestProcessor_ProcessPipes(t *testing.T) {
 		}
 		select {
 		case err := <-errChan:
-			assert.Error(t, err, "main pipe ended")
+			assert.Error(t, err, ErrMainPipeEnded)
 			cycleBreak = true
 			break
 		case out := <-outChan:
@@ -74,7 +74,7 @@ func TestProcessor_ProcessPipes2(t *testing.T) {
 		}
 		select {
 		case err := <-errChan:
-			assert.Error(t, err, "background pipe ended")
+			assert.Error(t, err, ErrBackgroundPipeEnded)
 			cycleBreak = true
 			break
 		case out := <-outChan:

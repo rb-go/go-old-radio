@@ -2,7 +2,6 @@ package oldradio
 
 import (
 	"bufio"
-	"fmt"
 	"io"
 	"math"
 	"math/rand"
@@ -172,14 +171,14 @@ func (proc *Processor) ProcessPipes(mainPipe io.Reader, bgPipe io.Reader, freq i
 	for {
 		mainSignalRune, err := mainPP.ReadByte()
 		if err != nil {
-			errChan <- fmt.Errorf("main pipe ended")
+			errChan <- ErrMainPipeEnded
 			break
 		}
 		signal = float64(mainSignalRune)
 
 		bgSignalByte, err := bgPP.ReadByte()
 		if err != nil {
-			errChan <- fmt.Errorf("background pipe ended")
+			errChan <- ErrBackgroundPipeEnded
 			break
 		}
 		bgSignal = float64(bgSignalByte)
