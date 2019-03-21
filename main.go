@@ -168,18 +168,18 @@ func (proc *Processor) ProcessPipes(mainPipe io.Reader, bgPipe io.Reader, freq i
 
 	var echoBuffer [int(echoSizeSamples)]float64
 
-	for {
+	for continueProcessing := true; continueProcessing; {
 		mainSignalRune, err := mainPP.ReadByte()
 		if err != nil {
 			errChan <- ErrMainPipeEnded
-			break
+			continueProcessing = false
 		}
 		signal = float64(mainSignalRune)
 
 		bgSignalByte, err := bgPP.ReadByte()
 		if err != nil {
 			errChan <- ErrBackgroundPipeEnded
-			break
+			continueProcessing = false
 		}
 		bgSignal = float64(bgSignalByte)
 
