@@ -8,7 +8,7 @@ import (
 	"sync"
 )
 
-const echoSizeSamples float64 = 1000
+const echoSizeSamples float64 = 1000.0
 
 func levelWithFading(level, t, fastPeriod, mediumPeriod, longPeriod, extralongPeriod float64) float64 {
 	return level + 0.4*level*math.Sin(t/extralongPeriod) + 0.3*level*math.Sin(t/longPeriod) + 0.2*level*math.Sin(t/mediumPeriod) + 0.1*level*math.Sin(t/fastPeriod)
@@ -212,6 +212,10 @@ func (proc Processor) ProcessPipes(mainPipe io.Reader, bgPipe io.Reader, freq in
 
 		echoBuffer[int(math.Mod(timeCounter, echoSizeSamples))] = signal
 		prevOutput = output
+
+		if (math.MaxFloat64 - echoSizeSamples) < timeCounter {
+			timeCounter = 0
+		}
 
 		timeCounter++
 	}
