@@ -119,7 +119,7 @@ func NewProcessor() *Processor {
 }
 
 //ProcessPipes ...
-func (proc *Processor) ProcessPipes(mainPipe io.Reader, bgPipe io.Reader, freq int64, outChan chan byte, errChan chan error) {
+func (proc Processor) ProcessPipes(mainPipe io.Reader, bgPipe io.Reader, freq int64, outChan chan byte, errChan chan error) {
 
 	// Randomize from frequency value
 	rand.Seed(freq)

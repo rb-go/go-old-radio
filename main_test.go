@@ -33,7 +33,7 @@ func TestProcessor_ProcessPipes(t *testing.T) {
 	errChan := make(chan error)
 	outChan := make(chan byte)
 
-	go processor.ProcessPipes(mainStream, bgStream, 1028, outChan, errChan)
+	go processor.ProcessPipes(mainStream, bgStream, 1221, outChan, errChan)
 
 	var cycleBreak bool
 	for {
