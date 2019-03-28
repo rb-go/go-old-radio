@@ -5,7 +5,6 @@ import (
 	"io"
 	"math"
 	"math/rand"
-	"sync"
 )
 
 const echoSizeSamples float64 = 1000.0
@@ -16,8 +15,6 @@ func levelWithFading(level, t, fastPeriod, mediumPeriod, longPeriod, extralongPe
 
 //Processor ...
 type Processor struct {
-	sync.Mutex
-
 	signalLevelMKV                      float64
 	signalFadingFastPeriodRate          float64
 	signalFadingMediumPeriodRate        float64
